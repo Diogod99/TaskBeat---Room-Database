@@ -21,12 +21,17 @@ class MainActivity : AppCompatActivity() {
         db.getCategoryDAO()
     }
 
+    private val taskDao: TaskDao by lazy {
+        db.getTaskDao()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         insertDefaultCategory()
+        insertDefaultTask()
 
         val rvCategory = findViewById<RecyclerView>(R.id.rv_categories)
         val rvTask = findViewById<RecyclerView>(R.id.rv_tasks)
@@ -55,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         rvCategory.adapter = categoryAdapter
-        categoryAdapter.submitList(categories)
+        getCategoriesFromDataBase(categoryAdapter)
 
         rvTask.adapter = taskAdapter
         taskAdapter.submitList(tasks)
@@ -72,6 +77,34 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             categoryDao.insertAll(categoriesEntity)
         }
+    }
+
+    private fun insertDefaultTask() {
+        val taskEntity = tasks.map {
+            TaskEntity(
+                name = it.name,
+                category = it.category
+            )
+        }
+
+        GlobalScope.launch(Dispatchers.IO) {
+            taskDao.insertAll(taskEntity)
+        }
+    }
+
+
+    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val categoriesFromDB = categoryDao.getAll()
+            val categoriesUiData = categoriesFromDB.map {
+                CategoryUiData(
+                    name = it.name,
+                    isSelected = it.isSelected
+                )
+            }
+            adapter.submitList(categoriesUiData)
+        }
+
     }
 
 }
