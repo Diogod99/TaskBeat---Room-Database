@@ -11,6 +11,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private var categories = listOf<CategoryUiData>()
+    private var tasks = listOf<TaskUiData>()
+
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -38,23 +41,23 @@ class MainActivity : AppCompatActivity() {
         val categoryAdapter = CategoryListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
-//            val categoryTemp = categories.map { item ->
-//                when {
-//                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
-//                    item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
-//                    else -> item
-//                }
-//            }
+            val categoryTemp = categories.map { item ->
+                when {
+                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
+                    item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
+                    else -> item
+                }
+            }
 
-//            val taskTemp =
-//                if (selected.name != "ALL") {
-//                    tasks.filter { it.category == selected.name }
-//                } else {
-//                    tasks
-//                }
-//            taskAdapter.submitList(taskTemp)
-//
-//            categoryAdapter.submitList(categoryTemp)
+            val taskTemp =
+                if (selected.name != "ALL") {
+                    tasks.filter { it.category == selected.name }
+                } else {
+                    tasks
+                }
+            taskAdapter.submitList(taskTemp)
+
+            categoryAdapter.submitList(categoryTemp)
         }
 
         rvCategory.adapter = categoryAdapter
@@ -72,7 +75,15 @@ class MainActivity : AppCompatActivity() {
                     name = it.name,
                     isSelected = it.isSelected
                 )
-            }
+            }.toMutableList()
+
+            categoriesUiData.add(
+                CategoryUiData(
+                    name = "+",
+                    isSelected = false
+                )
+            )
+            categories = categoriesUiData
             adapter.submitList(categoriesUiData)
         }
 
@@ -87,6 +98,7 @@ class MainActivity : AppCompatActivity() {
                     category = it.category
                 )
             }
+            tasks = tasksUiData
             adapter.submitList(tasksUiData)
         }
     }
