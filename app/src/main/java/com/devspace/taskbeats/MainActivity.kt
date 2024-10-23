@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.provider.Settings.Global
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -41,23 +42,30 @@ class MainActivity : AppCompatActivity() {
         val categoryAdapter = CategoryListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
-            val categoryTemp = categories.map { item ->
-                when {
-                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
-                    item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
-                    else -> item
+            if (selected.name == "+") {
+                val createCategoryBottomSheet = CreateCategoryBottomSheet()
+                createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
+            } else {
+                val categoryTemp = categories.map { item ->
+                    when {
+                        item.name == selected.name && !item.isSelected -> item.copy(
+                            isSelected = true
+                        )
+
+                        item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
+                        else -> item
+                    }
                 }
+
+                val taskTemp =
+                    if (selected.name != "ALL") {
+                        tasks.filter { it.category == selected.name }
+                    } else {
+                        tasks
+                    }
+                taskAdapter.submitList(taskTemp)
+                categoryAdapter.submitList(categoryTemp)
             }
-
-            val taskTemp =
-                if (selected.name != "ALL") {
-                    tasks.filter { it.category == selected.name }
-                } else {
-                    tasks
-                }
-            taskAdapter.submitList(taskTemp)
-
-            categoryAdapter.submitList(categoryTemp)
         }
 
         rvCategory.adapter = categoryAdapter
