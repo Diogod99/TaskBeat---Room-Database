@@ -14,6 +14,9 @@ interface CategoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll (categoryEntity: List<CategoryEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert (categoryEntity: CategoryEntity)
+
 
     }
 
